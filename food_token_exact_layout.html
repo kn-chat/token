@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Students Garden Hostel — Food Token</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f1f5f9;color:#0b1220;font-family:Arial,Helvetica,sans-serif}
+.app{max-width:1180px;margin:0 auto;padding:24px}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px}
+h1{font-size:clamp(22px,3vw,32px);margin:0}.tag{font-size:12px;color:#64748b}
+.grid{display:grid;grid-template-columns:320px 1fr;gap:20px}.controls,.preview{background:white;border:1px solid #dbe3ec;border-radius:16px;padding:20px;box-shadow:0 8px 30px #0f172a0a}
+h2{font-size:16px;margin:0 0 14px}.field{margin:14px 0}.field label{display:block;font-size:12px;color:#475569;margin-bottom:7px}
+input[type=date],select{width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;font:inherit}
+.person{display:flex;align-items:center;gap:8px;padding:10px;border:1px solid #dbe3ec;border-radius:9px;margin:8px 0;font-size:13px}.person input{accent-color:#111}
+button{border:0;border-radius:9px;padding:12px 14px;font-weight:bold;cursor:pointer}.download{background:#111827;color:white;width:100%;margin-top:12px}.refresh{background:#e2e8f0;color:#111827;width:100%;margin-top:8px}
+.canvas-wrap{background:#e8edf3;border-radius:12px;padding:10px;overflow:auto;display:flex;justify-content:center}
+canvas{display:block;width:100%;height:auto;max-width:100%;background:white}
+.note{font-size:11px;color:#64748b;margin-top:10px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.app{padding:12px}header{align-items:flex-start}}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div><div class="tag">STUDENTS GARDEN HOSTEL</div><h1>Food Token Generator</h1></div><div class="tag">Reference-matched print layout</div></header>
+<div class="grid">
+<section class="controls">
+<h2>Token details</h2>
+<div class="field"><label for="date">Date</label><input type="date" id="date" value="2026-11-03"></div>
+<div class="field"><label for="meal">Meal</label><select id="meal"><option>Breakfast</option><option>Lunch</option><option>Dinner</option></select></div>
+<div class="field"><label>Student</label>
+<label class="person"><input type="checkbox" value="262724" data-name="KAZIM NAHIAN" checked> Kazim Nahian <span>262724</span></label>
+<label class="person"><input type="checkbox" value="262725" data-name="NUR FAIAJ KHAN JAHAN"> Nur Faiaj Khan Jahan <span>262725</span></label>
+</div>
+<button class="download" id="download">Download exact-layout PNG</button>
+<button class="refresh" id="refresh">Refresh preview</button>
+<p class="note">Choose date, meal and student. The preview and exported PNG use the same canvas layout.</p>
+</section>
+<section class="preview"><h2>Live token preview</h2><div class="canvas-wrap"><canvas id="token" width="1630" height="965"></canvas></div></section>
+</div></div>
+<script>
+const canvas=document.getElementById('token'),ctx=canvas.getContext('2d');
+const dateEl=document.getElementById('date'),mealEl=document.getElementById('meal');
+const checked=()=>[...document.querySelectorAll('.person input:checked')];
+function dateLabel(){if(!dateEl.value)return 'Date: —';let [y,m,d]=dateEl.value.split('-').map(Number);return 'Date: '+new Date(y,m-1,d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function draw(){
+ const W=1630,H=965;ctx.clearRect(0,0,W,H);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+ ctx.strokeStyle='#000';ctx.lineWidth=9;ctx.setLineDash([39,22]);ctx.strokeRect(66,30,1473,912);ctx.setLineDash([]);
+ ctx.fillStyle='#000';ctx.textBaseline='alphabetic';
+ function centered(t,x,y,size,weight=500){ctx.font=`${weight} ${size}px Arial,Helvetica,sans-serif`;ctx.textAlign='center';ctx.fillText(t,x,y)}
+ function left(t,x,y,size,weight=500){ctx.font=`${weight} ${size}px Arial,Helvetica,sans-serif`;ctx.textAlign='left';ctx.fillText(t,x,y)}
+ function right(t,x,y,size,weight=500){ctx.font=`${weight} ${size}px Arial,Helvetica,sans-serif`;ctx.textAlign='right';ctx.fillText(t,x,y)}
+ centered('Students Garden Hostel',815,166,112,700);
+ left('Food Token',340,304,104,500);right('D-6',1270,304,104,500);
+ left(mealEl.value,340,450,104,500);right('11500',1270,450,104,500);
+ let students=checked();let base=students.length>1?505:535;
+ students.forEach((s,i)=>{
+   const y=base+i*(students.length>1?190:0);
+   left(s.dataset.name,150,y,96,500);
+   left('Student ID: '+s.value,150,y+104,96,500);
+ });
+ let dateY=students.length>1?850:748;
+ left(dateLabel(),150,dateY,96,500);
+ centered('No Token No Food',815,students.length>1?920:870,96,700);
+}
+function exportPNG(){draw();canvas.toBlob(blob=>{let url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='food-token.png';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)},'image/png')}
+document.getElementById('download').addEventListener('click',exportPNG);
+document.getElementById('refresh').addEventListener('click',draw);
+[dateEl,mealEl,...document.querySelectorAll('.person input')].forEach(el=>el.addEventListener('change',draw));
+draw();
+</script>
+</body>
+</html>
